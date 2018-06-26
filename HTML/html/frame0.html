@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        .goods {
+            display: flex;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .goods .menu-wrapper {
+            flex: 0 0 80px;
+            width: 80px;
+            background: #aaa;
+        }
+
+        .goods .menu-wrapper .menu-item {
+            display: table;
+            height: 54px;
+            width: 80px;
+            padding: 0 12px;
+            line-height: 14px;
+        }
+
+        .goods .menu-wrapper .menu-item.current {
+            position: relative;
+            z-index: 10;
+            margin-top: -1px;
+            background: #fff;
+            font-weight: 700;
+        }
+
+        .goods .menu-wrapper .menu-item.current .text {
+            border: none
+        }
+
+        .goods .menu-wrapper .menu-item .text {
+            display: table-cell;
+            width: 56px;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(7, 17, 27, 0.1);
+        }
+
+        .goods .foods-wrapper {
+            flex: 1
+        }
+
+        .goods .foods-wrapper .title {
+            padding-left: 14px;
+            height: 26px;
+            line-height: 26px;
+            border-left: 2px solid #d9dde1;
+            font-size: 12px;
+            color: rgb(147, 153, 159);
+            background: #f3f5f7;
+        }
+
+        .goods .foods-wrapper .food-item {
+            display: flex;
+            margin: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(7, 17, 27, 0.1);
+        }
+
+        .goods .foods-wrapper .food-item .icon {
+            /*flex: 0 0 57px;*/
+            margin-right: 5px;
+        }
+
+        .goods .foods-wrapper .food-item .content {
+            flex: 1
+        }
+
+        .goods .foods-wrapper .food-item .content .name {
+            margin: 2px 0 8px 0;
+            height: 14px;
+            line-height: 14px;
+            font-size: 14px;
+            color: rgb(7, 17, 27);
+        }
+
+        .goods .foods-wrapper .food-item .content .desc,
+        .goods .foods-wrapper .food-item .content .extra {
+            line-height: 12px;
+            margin-bottom: 15px
+        }
+
+        .goods .foods-wrapper .food-item .content .extra .count {
+            margin-right: 12px
+        }
+
+        .goods .foods-wrapper .food-item .content .price {
+            line-height: 12px;
+            margin-bottom: 8px
+        }
+
+        .goods .foods-wrapper .food-item .content .price .now {
+            margin-right: 8px;
+            font-size: 14px;
+            color: rgb(240, 20, 20);
+        }
+
+        .goods .foods-wrapper .food-item .content .price .old {
+            text-decoration: line-through;
+            font-size: 10px;
+            color: rgb(147, 153, 159);
+        }
+
+        .icon {
+            background-color: #bbb;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div>
+        <div class="goods">
+
+            <!-- //左侧类别菜单栏 -->
+            <div class="menu-wrapper" id="menuWrapper">
+                <ul id="wrapperLeft"></ul>
+                <script id="wrapperLeftBox" type="text/doTtemplate">
+                    {{for(var i in it) {}}
+                    <li class="menu-item">
+                        <span class="text">{{=it[i].name}}</span>
+                    </li>
+                    {{ } }}
+                </script>
+            </div>
+
+            <!-- //右侧子项菜单栏 -->
+            <div class="foods-wrapper" id="foodsWrapper">
+                <ul id="wrapperRight"></ul>
+                <script id="wrapperRightBox" type="text/doTtemplate">
+                    {{for(var i in it) {}}
+                    <li class="food-list">
+                        <h1 class="title">{{=it[i].name}}</h1>
+                        <ul>
+                            {{for(var j in it[i].foods){}}
+                            <li class="food-item">
+                                <div class="icon">
+                                    <!--加载网络图片为item头像-->
+                                    <!--<img width="57" height="57" src="{{=it[i].foods[j].icon}}">-->
+                                    <img width='57' height='57' background-color='#eee' alt='avatar'>
+
+                                </div>
+                                <div class="content">
+                                    <h2 class="name">{{=it[i].foods[j].name}}</h2>
+                                    <!--<p class="desc">{{=it[i].foods[j].description}}</p>-->
+                                    <div class="extra">
+                                        <!--<span class="count">月售{{=it[i].foods[j].sellCount}}份</span><span>好评率{{=it[i].foods[j].rating}}%</span>-->
+                                    </div>
+                                    <div class="price">
+                                        <span class="now">￥{{=it[i].foods[j].price}}</span> {{? it[i].foods[j].oldPrice != ''}}
+                                        <span class="old">￥{{=it[i].foods[j].oldPrice}}</span> {{?}}
+                                    </div>
+                                    <div className="plus">
+                                    </div>
+                                </div>
+                            </li>
+                            {{ } }}
+                        </ul>
+                    </li>
+                    {{ } }}
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../script/bscroll.js"></script>
+<script src="../script/doT.js"></script>
+<script src="../script/jquery-311.js"></script>
+
+<script>
+    $(document).ready(readyHandler);
+
+    function readyHandler() {
+        // 1：先请求列表数据
+        $.post("../res/data.json", null, loadHandler, "json");
+    }
+
+    /**
+     * 数据列表加载完成
+     * @param data
+     */
+    function loadHandler(data) {
+        console.log(data);
+
+        var menuWrapper, foodsWrapper, scrollY;
+
+        // 给左侧内容填充数据
+        var wrapperLeftBoxTpl = doT.template(document.getElementById('wrapperLeftBox').innerHTML);
+        document.getElementById("wrapperLeft").innerHTML = wrapperLeftBoxTpl(data.goods);
+
+        // 给右侧内容填充数据
+        var wrapperRightBoxTpl = doT.template(document.getElementById('wrapperRightBox').innerHTML);
+        document.getElementById("wrapperRight").innerHTML = wrapperRightBoxTpl(data.goods);
+
+        // 判断左侧内容是否有数据，如果有则初始化 Bscroll 滚动
+        if ($("#wrapperLeft").html()) {
+            menuWrapper = new BScroll(document.getElementById('menuWrapper'), {
+                click: true
+            });
+        }
+
+        // 判断右侧内容是否有数据，如果有则初始化 Bscroll 滚动
+        // BScroll 穿入两个参数，第一个el （dom元素），第二个是个对象（默认不阻止点击，可实时监听滚动）
+        if ($("#wrapperRight").html()) {
+            foodsWrapper = new BScroll(document.getElementById('foodsWrapper'), {
+                click: true,
+                probeType: 3
+            })
+        }
+
+
+        /*
+         * 1. 现获取右侧所有 li 的高度
+         * 2. 获取的高度保存数组内
+         * 3. 循环点击左侧的 li，判断数据的内容是否跟点击的数据一致，通过 BScroll 提供的方法 scrollToElement 滚动到对应的文档位置
+         *    scrollToElement 接受五个参数 el（必填）表示 dom 元素，time 表示动画时间，offsetX 和 offsetY 表示坐标偏移量，easing 表示缓动函数
+         *    scrollToElement (el, time, offsetX, offsetY, easing)
+         * 4. 设置点击时候的对应的 class ，现移除所有同级元素的 class（current），再给自己的加一个class（current）
+         */
+
+        var foodList = document.getElementsByClassName("food-list")
+
+        var height = 0;
+        var listHeight = [];
+        listHeight.push(height);
+
+        for (var i = 0; i < foodList.length; i++) {
+            var item = foodList[i];
+            height += item.clientHeight;
+            listHeight.push(height);
+            // console.log(listHeight)
+        }
+        console.log(listHeight);
+
+        // 左侧点击事件
+        $("#wrapperLeft").delegate("li", "click", function(e) {
+            console.log(e.target.innerText)
+            for (var i = 0; i < data.goods.length; i++) {
+                if (data.goods[i].name == e.target.innerText) {
+                    $(this).addClass("current").siblings().removeClass("current");
+                    foodsWrapper.scrollToElement(document.getElementsByClassName("food-list")[i], 400); //800毫秒滚动到顶
+                }
+            }
+        })
+
+        // 实时监听右侧滚动
+        foodsWrapper.on('scroll', function(pos) {
+            scrollY = Math.abs(Math.round(pos.y));
+            for (var i = 0; i < listHeight.length; i++) {
+                var height1 = listHeight[i];
+                var height2 = listHeight[i + 1];
+                if ((scrollY >= height1 && scrollY < height2)) {
+                    $($(".menu-item")[i]).addClass("current").siblings().removeClass("current")
+                }
+            }
+        });
+
+        // 给第一个添加默认点击
+        $("#wrapperLeft").children().first().trigger("click")
+    }
+</script>
+
+</html>
